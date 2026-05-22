@@ -1,0 +1,29 @@
+name: Daily Data Ingestion
+
+on:
+  schedule:
+    # Chạy lúc 00:00 UTC mỗi ngày (tương đương 7:00 sáng giờ VN)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Lệnh này cho phép bạn xuất hiện nút "Bấm chạy thủ công" để test ngay
+
+jobs:
+  run-ingestion-job:
+    runs-on: ubuntu-latest # Mượn một máy chủ dùng hệ điều hành Ubuntu của GitHub
+
+    steps:
+    - name: Lấy code từ Repository
+      uses: actions/checkout@v3
+
+    - name: Thiết lập môi trường Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Cài đặt các thư viện cần thiết
+      run: pip install -r requirements.txt
+
+    - name: Chạy script tải và nạp dữ liệu
+      env:
+        MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      run: python ingest.py
